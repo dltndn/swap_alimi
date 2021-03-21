@@ -112,34 +112,41 @@ def crawling_ksp():
 
     return sending_text + sending_text2 + sending_text3
 
-print(crawling_ksp())
+
 
 
 # crawling_ksp()
 
 my_token = '1601767622:AAGbhKM1WIccX0sOcfEpIazv7Mw1MBCabOU'
 
-# print('start telegram chat bot')
+print('start telegram chat bot')
 
-# # message reply function
-# def get_message(update, context) :
-#     update.message.reply_text("got text")
-#     update.message.reply_text(update.message.text)
-
-
-# # rate reply function
-# def keth_rate_command(update, context) :
-#     keth = crawling_keth()
-#     update.message.reply_text(keth)
+# message reply function
+def get_message(update, context) :
+    update.message.reply_text("got text")
+    update.message.reply_text(update.message.text)
 
 
-# updater = Updater(my_token, use_context=True)
+# rate reply function
+def keth_rate_command(update, context) :
+    keth = crawling_keth()
+    update.message.reply_text(keth)
 
-# message_handler = MessageHandler(Filters.text & (~Filters.command), get_message) # 메세지중에서 command 제외
-# updater.dispatcher.add_handler(message_handler)
+def ksp_rate_command(update, context) : 
+    ksp = crawling_ksp()
+    update.message.reply_text(ksp)
 
-# rate_handler = CommandHandler('get', keth_rate_command)
-# updater.dispatcher.add_handler(rate_handler)
 
-# updater.start_polling(timeout=3, clean=True)
-# updater.idle()
+updater = Updater(my_token, use_context=True)
+
+message_handler = MessageHandler(Filters.text & (~Filters.command), get_message) # 메세지중에서 command 제외
+updater.dispatcher.add_handler(message_handler)
+
+keth_rate_handler = CommandHandler('keth', keth_rate_command)
+updater.dispatcher.add_handler(keth_rate_handler)
+
+ksp_rate_handler = CommandHandler('ksp', ksp_rate_command)
+updater.dispatcher.add_handler(ksp_rate_handler)
+
+updater.start_polling(timeout=3, clean=True)
+updater.idle()
