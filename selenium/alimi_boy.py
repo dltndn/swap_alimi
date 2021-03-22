@@ -2,12 +2,11 @@ import telegram
 from telegram.ext import Updater, MessageHandler, Filters, CommandHandler  # import modules
 import requests
 from bs4 import BeautifulSoup
+import schedule
+import time
 
-# bot = telegram.Bot(token='1601767622:AAGbhKM1WIccX0sOcfEpIazv7Mw1MBCabOU')
+my_token = '1601767622:AAGbhKM1WIccX0sOcfEpIazv7Mw1MBCabOU'
 
-# bot.sendMessage(chat_id=chat_id, text=sending_text + "dkdl")
-
-chat_id = 1343819766
 
 def crawling_keth():
     
@@ -113,40 +112,50 @@ def crawling_ksp():
     return sending_text + sending_text2 + sending_text3
 
 
+def sending_on_schedule():
+    chat_id = 1343819766
+    sending_text = crawling_ksp()
+    bot = telegram.Bot(token=my_token)
+    bot.sendMessage(chat_id=chat_id, text=sending_text)
+
+sending_on_schedule()
+
+schedule.every(10).minutes.do(sending_on_schedule)
+
+while True:
+    schedule.run_pending()
+    time.sleep(1)
 
 
-# crawling_ksp()
 
-my_token = '1601767622:AAGbhKM1WIccX0sOcfEpIazv7Mw1MBCabOU'
+# print('start telegram chat bot')
 
-print('start telegram chat bot')
-
-# message reply function
-def get_message(update, context) :
-    update.message.reply_text("got text")
-    update.message.reply_text(update.message.text)
+# # message reply function
+# def get_message(update, context) :
+#     update.message.reply_text("got text")
+#     update.message.reply_text(update.message.text)
 
 
-# rate reply function
-def keth_rate_command(update, context) :
-    keth = crawling_keth()
-    update.message.reply_text(keth)
+# # rate reply function
+# def keth_rate_command(update, context) :
+#     keth = crawling_keth()
+#     update.message.reply_text(keth)
 
-def ksp_rate_command(update, context) : 
-    ksp = crawling_ksp()
-    update.message.reply_text(ksp)
+# def ksp_rate_command(update, context) : 
+#     ksp = crawling_ksp()
+#     update.message.reply_text(ksp)
 
 
-updater = Updater(my_token, use_context=True)
+# updater = Updater(my_token, use_context=True)
 
-message_handler = MessageHandler(Filters.text & (~Filters.command), get_message) # 메세지중에서 command 제외
-updater.dispatcher.add_handler(message_handler)
+# message_handler = MessageHandler(Filters.text & (~Filters.command), get_message) # 메세지중에서 command 제외
+# updater.dispatcher.add_handler(message_handler)
 
-keth_rate_handler = CommandHandler('keth', keth_rate_command)
-updater.dispatcher.add_handler(keth_rate_handler)
+# keth_rate_handler = CommandHandler('keth', keth_rate_command)
+# updater.dispatcher.add_handler(keth_rate_handler)
 
-ksp_rate_handler = CommandHandler('ksp', ksp_rate_command)
-updater.dispatcher.add_handler(ksp_rate_handler)
+# ksp_rate_handler = CommandHandler('ksp', ksp_rate_command)
+# updater.dispatcher.add_handler(ksp_rate_handler)
 
-updater.start_polling(timeout=3, clean=True)
-updater.idle()
+# updater.start_polling(timeout=3, clean=True)
+# updater.idle()
