@@ -86,7 +86,7 @@ def crawling_ksp():
     ksp_price = float(ksp_price)
     
     ksp_value_rate = klay_price / ksp_price #현재
-    ksp_swap_rate = 0.170635 #리밸런싱 시점
+    ksp_swap_rate = 0.139 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
 
     ksp_fluc = ksp_value_rate - ksp_swap_rate
     ksp_fluc = ksp_fluc / ksp_swap_rate
@@ -107,16 +107,59 @@ def crawling_ksp():
 
     sending_text = "ksp 스왑비(예치시점): " + str(ksp_swap_rate) + "ksp\n"
     sending_text2 = "ksp 스왑비(현재): " + str(ksp_value_rate) + "ksp\n"
-    sending_text3 = "ksp 스왑비 변동률: " + str(ksp_fluc) + "%" + memo
+    sending_text3 = "ksp 스왑비 변동률: " + str(ksp_fluc) + "%" + memo + "\n"
 
     return sending_text + sending_text2 + sending_text3
+
+def crawling_klay_shorts():
+    klayURL = 'https://coinmarketcap.com/ko/currencies/klaytn/'
+    daiURL = 'https://coinmarketcap.com/ko/currencies/multi-collateral-dai/'
+
+    klay_result = requests.get(klayURL)
+    dai_result = requests.get(daiURL)
+
+    klay_soup = BeautifulSoup(klay_result.text, "html.parser")
+    dai_soup = BeautifulSoup(dai_result.text, "html.parser")
+
+    def crawling_price(k):
+        price = k.find("div", {"class": 'priceValue___11gHJ'}).text
+        price = price[1:]
+        price = price.replace(",", "")
+        price = float(price)
+        return price
+
+    klay_price = crawling_price(klay_soup)
+    dai_price = crawling_price(dai_soup)
+
+    klay_dai_rate = klay_price / dai_price
+    klay_dai_rate = round(klay_dai_rate, 6)
+    klay_dai_past = 3.005877 #리밸런싱 시점 ----------------------------------------------------------------------------------------------------
+    
+    klay_dai_fluc = klay_dai_rate - klay_dai_past
+    klay_dai_fluc = klay_dai_fluc / klay_dai_past
+    klay_dai_fluc = round(klay_dai_fluc * 100, 2)
+
+    if klay_dai_fluc < 0:
+        memo = "(klay 개수 증가중)"
+    elif klay_dai_fluc == 0:
+        memo = "(변동 없음)"
+    else :
+        memo = "(klay 개수 하락중 - 유동성제거 대기)"
+
+    sending_text = "klay-dai 스왑비: " + str(klay_dai_rate) + "dai\n"
+    sending_text2 = "klay-dai 변동률: " + str(klay_dai_fluc) + "%" + memo + "\n"
+
+    return sending_text + sending_text2
 
 
 def sending_on_schedule():
     chat_id = 1343819766
     sending_text = crawling_ksp()
+    sending_text2 = "----------------------------------\n"
+    sending_text3 = crawling_klay_shorts()
+    text_sum = sending_text3 + sending_text2 + sending_text
     bot = telegram.Bot(token=my_token)
-    bot.sendMessage(chat_id=chat_id, text=sending_text)
+    bot.sendMessage(chat_id=chat_id, text=text_sum)
 
 sending_on_schedule()
 
