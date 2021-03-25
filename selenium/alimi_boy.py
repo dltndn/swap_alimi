@@ -5,8 +5,8 @@ from bs4 import BeautifulSoup
 import schedule
 import time
 
-my_token = '555'
-chat_id = 555
+my_token = '55'
+chat_id = 55
 
 
 def crawling_keth():
@@ -134,7 +134,7 @@ def crawling_klay_shorts():
 
     klay_dai_rate = klay_price / dai_price
     klay_dai_rate = round(klay_dai_rate, 6)
-    klay_dai_past = 2.797358 #리밸런싱 시점 ----------------------------------------------------------------------------------------------------
+    klay_dai_past = 2.872083 #리밸런싱 시점 ----------------------------------------------------------------------------------------------------
     
     klay_dai_fluc = klay_dai_rate - klay_dai_past
     klay_dai_fluc = klay_dai_fluc / klay_dai_past
@@ -153,19 +153,21 @@ def crawling_klay_shorts():
 
     return sending_text + sending_text2 , klay_dai_fluc
 
+ksp_result = crawling_klay_shorts()
 
 bot = telegram.Bot(token=my_token)
 
-def sending_on_schedule():
+def sending_on_schedule():     #bot에 메세지 보내는 함수
     sending_text = crawling_ksp()
     sending_text2 = "----------------------------------\n"
-    sending_text3, fluc = crawling_klay_shorts()
+    sending_text3 = ksp_result[0]
     text_sum = sending_text3 + sending_text2 + sending_text
     bot.sendMessage(chat_id=chat_id, text=text_sum)
-    return fluc
 
-def fluc_frequency():    
-    fluc = sending_on_schedule()
+gap = 0
+
+def fluc_frequency():    #변동률 파일에 읽고쓰기 
+    fluc = ksp_result[1]
     def add():
         f = open("fluc.txt", 'a')
         data = str(fluc) 
@@ -175,7 +177,6 @@ def fluc_frequency():
     def read():
         f = open("fluc.txt", 'r')
         lines = f.readlines()
-        sw = 0
         index = []
         for line in lines:
             index.append(line)
@@ -192,47 +193,66 @@ def fluc_frequency():
         f.write(data)
         f.close()
 
+    global gap
     add()
     gap = read()
-    write()
-    return gap
-    
-
-
-gap = 0
+    write()    
 
 def whole_schedule():
-    global gap
-    gap = fluc_frequency()
-
-whole_schedule()
-
-def five_m():
-    if gap > 0.5 and gap <= 1:
-        whole_schedule()
-    else:
-        pass
-    
-def one_m():
-    if gap > 1 and gap <= 2:
-        whole_schedule()
-    else:
-        pass
-
-def ten_s():
     if gap > 2:
-        whole_schedule()
+        puppet_ten_sec()
+    elif gap > 1:
+        puppet_one_min()
+    elif gap > 0.5:
+        puppet_five_min()
     else:
         pass
 
-schedule.every(10).minutes.do(whole_schedule)
-schedule.every(5).minutes.do(five_m)
-schedule.every(1).minutes.do(one_m)
-schedule.every(10).seconds.do(ten_s)
-# schedule.run_all()
+def main_schedule():    
+    sending_on_schedule()
+    fluc_frequency()
+    whole_schedule()
+
+def ass_schedule():
+    sending_on_schedule()
+    fluc_frequency()
+
+def puppet_ten_sec():
+    scheduler2 = schedule.Scheduler()
+    scheduler2.every(10).seconds.do(ass_schedule)
+    while True:
+        scheduler2.run_pending()
+        time.sleep(1)
+        if gap <= 2:
+            whole_schedule()
+            break
+
+def puppet_one_min():
+    scheduler2 = schedule.Scheduler()
+    scheduler2.every(1).minutes.do(ass_schedule)
+    while True:
+        scheduler2.run_pending()
+        time.sleep(1)
+        if gap <= 1:
+            whole_schedule()
+            break
+
+def puppet_five_min():
+    scheduler2 = schedule.Scheduler()
+    scheduler2.every(5).minutes.do(ass_schedule)
+    while True:
+        scheduler2.run_pending()
+        time.sleep(1)
+        if gap <= 0.5:
+            whole_schedule()
+            break
+
+main_schedule()
+scheduler1 = schedule.Scheduler()
+scheduler1.every(10).minutes.do(main_schedule)
 
 while True:
-    schedule.run_pending()
+    scheduler1.run_pending()
     time.sleep(1)
     
 # sending_on_schedule()
