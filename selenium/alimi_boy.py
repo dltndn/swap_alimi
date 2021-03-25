@@ -6,7 +6,7 @@ import schedule
 import time
 
 my_token = '55'
-chat_id = 55
+chat_id = 5
 
 
 def crawling_keth():
@@ -153,21 +153,21 @@ def crawling_klay_shorts():
 
     return sending_text + sending_text2 , klay_dai_fluc
 
-ksp_result = crawling_klay_shorts()
 
 bot = telegram.Bot(token=my_token)
 
 def sending_on_schedule():     #bot에 메세지 보내는 함수
     sending_text = crawling_ksp()
     sending_text2 = "----------------------------------\n"
-    sending_text3 = ksp_result[0]
+    sending_text3, fluc = crawling_klay_shorts()
     text_sum = sending_text3 + sending_text2 + sending_text
     bot.sendMessage(chat_id=chat_id, text=text_sum)
+    return fluc
 
 gap = 0
 
 def fluc_frequency():    #변동률 파일에 읽고쓰기 
-    fluc = ksp_result[1]
+    fluc = sending_on_schedule()
     def add():
         f = open("fluc.txt", 'a')
         data = str(fluc) 
@@ -209,12 +209,10 @@ def whole_schedule():
         pass
 
 def main_schedule():    
-    sending_on_schedule()
     fluc_frequency()
     whole_schedule()
 
 def ass_schedule():
-    sending_on_schedule()
     fluc_frequency()
 
 def puppet_ten_sec():
