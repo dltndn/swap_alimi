@@ -5,8 +5,8 @@ from bs4 import BeautifulSoup
 import schedule
 import time
 
-my_token = '5555'
-chat_id = 123
+my_token = '555'
+chat_id = 555
 
 
 def crawling_keth():
@@ -203,26 +203,25 @@ gap = 0
 
 def whole_schedule():
     global gap
-    print("gmsdfm")
     gap = fluc_frequency()
 
 whole_schedule()
 
 def five_m():
     if gap > 0.5 and gap <= 1:
-        sending_on_schedule()
+        whole_schedule()
     else:
         pass
     
 def one_m():
     if gap > 1 and gap <= 2:
-        sending_on_schedule()
+        whole_schedule()
     else:
         pass
 
 def ten_s():
     if gap > 2:
-        sending_on_schedule()
+        whole_schedule()
     else:
         pass
 
