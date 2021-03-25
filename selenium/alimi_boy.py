@@ -5,7 +5,8 @@ from bs4 import BeautifulSoup
 import schedule
 import time
 
-my_token = '1601767622:AAGbhKM1WIccX0sOcfEpIazv7Mw1MBCabOU'
+my_token = '5555'
+chat_id = 123
 
 
 def crawling_keth():
@@ -86,7 +87,7 @@ def crawling_ksp():
     ksp_price = float(ksp_price)
     
     ksp_value_rate = klay_price / ksp_price #현재
-    ksp_swap_rate = 0.139 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
+    ksp_swap_rate = 0.1311 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
 
     ksp_fluc = ksp_value_rate - ksp_swap_rate
     ksp_fluc = ksp_fluc / ksp_swap_rate
@@ -133,7 +134,7 @@ def crawling_klay_shorts():
 
     klay_dai_rate = klay_price / dai_price
     klay_dai_rate = round(klay_dai_rate, 6)
-    klay_dai_past = 3.005877 #리밸런싱 시점 ----------------------------------------------------------------------------------------------------
+    klay_dai_past = 2.797358 #리밸런싱 시점 ----------------------------------------------------------------------------------------------------
     
     klay_dai_fluc = klay_dai_rate - klay_dai_past
     klay_dai_fluc = klay_dai_fluc / klay_dai_past
@@ -145,29 +146,100 @@ def crawling_klay_shorts():
         memo = "(변동 없음)"
     else :
         memo = "(klay 개수 하락중 - 유동성제거 대기)"
+    
 
     sending_text = "klay-dai 스왑비: " + str(klay_dai_rate) + "dai\n"
     sending_text2 = "klay-dai 변동률: " + str(klay_dai_fluc) + "%" + memo + "\n"
 
-    return sending_text + sending_text2
+    return sending_text + sending_text2 , klay_dai_fluc
 
+
+bot = telegram.Bot(token=my_token)
 
 def sending_on_schedule():
-    chat_id = 1343819766
     sending_text = crawling_ksp()
     sending_text2 = "----------------------------------\n"
-    sending_text3 = crawling_klay_shorts()
+    sending_text3, fluc = crawling_klay_shorts()
     text_sum = sending_text3 + sending_text2 + sending_text
-    bot = telegram.Bot(token=my_token)
     bot.sendMessage(chat_id=chat_id, text=text_sum)
+    return fluc
 
-sending_on_schedule()
+def fluc_frequency():    
+    fluc = sending_on_schedule()
+    def add():
+        f = open("fluc.txt", 'a')
+        data = str(fluc) 
+        f.write(data)
+        f.close()
+    
+    def read():
+        f = open("fluc.txt", 'r')
+        lines = f.readlines()
+        sw = 0
+        index = []
+        for line in lines:
+            index.append(line)
+        f.close()
+        front = float(index[0])
+        current = float(index[1])
+        gap = current - front
+        gap = abs(round(gap, 2))
+        return gap
+        
+    def write():
+        f = open("fluc.txt", 'w')
+        data = str(fluc) + "\n"
+        f.write(data)
+        f.close()
 
-schedule.every(10).minutes.do(sending_on_schedule)
+    add()
+    gap = read()
+    write()
+    return gap
+    
+
+
+gap = 0
+
+def whole_schedule():
+    global gap
+    print("gmsdfm")
+    gap = fluc_frequency()
+
+whole_schedule()
+
+def five_m():
+    if gap > 0.5 and gap <= 1:
+        sending_on_schedule()
+    else:
+        pass
+    
+def one_m():
+    if gap > 1 and gap <= 2:
+        sending_on_schedule()
+    else:
+        pass
+
+def ten_s():
+    if gap > 2:
+        sending_on_schedule()
+    else:
+        pass
+
+schedule.every(10).minutes.do(whole_schedule)
+schedule.every(5).minutes.do(five_m)
+schedule.every(1).minutes.do(one_m)
+schedule.every(10).seconds.do(ten_s)
+# schedule.run_all()
 
 while True:
     schedule.run_pending()
     time.sleep(1)
+    
+# sending_on_schedule()
+# klay숏 하기 전 체크사항
+# 스왑과 동시에 sending_on_schedule()실행 후 리밸런싱 시점 입력
+# fluc.txt에 0입력
 
 
 
