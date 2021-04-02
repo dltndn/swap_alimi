@@ -5,8 +5,8 @@ from bs4 import BeautifulSoup
 import schedule
 import time
 
-my_token = '55'
-chat_id = 5
+my_token = '1234'
+chat_id = 123
 
 
 def crawling_keth():
@@ -87,7 +87,7 @@ def crawling_ksp():
     ksp_price = float(ksp_price)
     
     ksp_value_rate = klay_price / ksp_price #현재
-    ksp_swap_rate = 0.1311 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
+    ksp_swap_rate = 0.0977 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
 
     ksp_fluc = ksp_value_rate - ksp_swap_rate
     ksp_fluc = ksp_fluc / ksp_swap_rate
@@ -103,12 +103,95 @@ def crawling_ksp():
     else :
         memo = "(klay 가치+ 개수-)"
 
-
-    test = -1
-
     sending_text = "ksp 스왑비(예치시점): " + str(ksp_swap_rate) + "ksp\n"
     sending_text2 = "ksp 스왑비(현재): " + str(ksp_value_rate) + "ksp\n"
     sending_text3 = "ksp 스왑비 변동률: " + str(ksp_fluc) + "%" + memo + "\n"
+
+    return sending_text + sending_text2 + sending_text3
+
+def crawling_orc():
+    klayURL = 'https://coinmarketcap.com/ko/currencies/klaytn/'
+    orcURL = 'https://coinmarketcap.com/ko/currencies/orbit-chain/'
+
+    klay_result = requests.get(klayURL)
+    orc_result = requests.get(orcURL)
+
+    klay_soup = BeautifulSoup(klay_result.text, "html.parser")
+    orc_soup = BeautifulSoup(orc_result.text, "html.parser")
+
+    klay_price = klay_soup.find("div", {"class": 'priceValue___11gHJ'}).text
+    klay_price = klay_price[1:]
+    klay_price = klay_price.replace(",", "")
+    klay_price = float(klay_price)
+    
+    orc_price = orc_soup.find("div", {"class": 'priceValue___11gHJ'}).text
+    orc_price = orc_price[1:]
+    orc_price = orc_price.replace(",", "")
+    orc_price = float(orc_price)
+    
+    orc_value_rate = klay_price / orc_price #현재
+    orc_swap_rate = 0.915877 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
+
+    orc_fluc = orc_value_rate - orc_swap_rate
+    orc_fluc = orc_fluc / orc_swap_rate
+    orc_fluc = round(orc_fluc * 100, 2)
+
+    orc_value_rate = round(orc_value_rate, 4)
+    orc_swap_rate = round(orc_swap_rate, 4)
+
+    if orc_fluc < 0:
+        memo = "(klay 가치- 개수+)"
+    elif orc_fluc == 0:
+        memo = "(변동 없음)"
+    else :
+        memo = "(klay 가치+ 개수-)"
+
+    sending_text = "klay-orc 스왑비(예치시점): " + str(orc_swap_rate) + "orc\n"
+    sending_text2 = "klay-orc 스왑비(현재): " + str(orc_value_rate) + "orc\n"
+    sending_text3 = "klay-orc 스왑비 변동률: " + str(orc_fluc) + "%" + memo + "\n"
+
+    return sending_text + sending_text2 + sending_text3
+
+def crawling_ksp_orc():
+    kspURL = 'https://coinmarketcap.com/ko/currencies/klayswap-protocol/'
+    orcURL = 'https://coinmarketcap.com/ko/currencies/orbit-chain/'
+
+    ksp_result = requests.get(kspURL)
+    orc_result = requests.get(orcURL)
+
+    ksp_soup = BeautifulSoup(ksp_result.text, "html.parser")
+    orc_soup = BeautifulSoup(orc_result.text, "html.parser")
+
+    ksp_price = ksp_soup.find("div", {"class": 'priceValue___11gHJ'}).text
+    ksp_price = ksp_price[1:]
+    ksp_price = ksp_price.replace(",", "")
+    ksp_price = float(ksp_price)
+    
+    orc_price = orc_soup.find("div", {"class": 'priceValue___11gHJ'}).text
+    orc_price = orc_price[1:]
+    orc_price = orc_price.replace(",", "")
+    orc_price = float(orc_price)
+    
+    orc_value_rate = ksp_price / orc_price #현재
+    orc_swap_rate = 18.915877 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
+
+    orc_fluc = orc_value_rate - orc_swap_rate
+    orc_fluc = orc_fluc / orc_swap_rate
+    orc_fluc = round(orc_fluc * 100, 2)
+
+    orc_value_rate = round(orc_value_rate, 4)
+    orc_swap_rate = round(orc_swap_rate, 4)
+
+    if orc_fluc < 0:
+        memo = "(ksp 가치- 개수+)"
+    elif orc_fluc == 0:
+        memo = "(변동 없음)"
+    else :
+        memo = "(ksp 가치+ 개수-)"
+
+    sending_text = "ksp-orc 스왑비(예치시점): " + str(orc_swap_rate) + "orc\n"
+    sending_text2 = "ksp-orc 스왑비(현재): " + str(orc_value_rate) + "orc\n"
+    sending_text3 = "ksp-orc 스왑비 변동률: " + str(orc_fluc) + "%" + memo + "\n"
 
     return sending_text + sending_text2 + sending_text3
 
@@ -134,7 +217,7 @@ def crawling_klay_shorts():
 
     klay_dai_rate = klay_price / dai_price
     klay_dai_rate = round(klay_dai_rate, 6)
-    klay_dai_past = 2.872083 #리밸런싱 시점 ----------------------------------------------------------------------------------------------------
+    klay_dai_past = 4.119186 #리밸런싱 시점 ----------------------------------------------------------------------------------------------------
     
     klay_dai_fluc = klay_dai_rate - klay_dai_past
     klay_dai_fluc = klay_dai_fluc / klay_dai_past
@@ -157,12 +240,13 @@ def crawling_klay_shorts():
 bot = telegram.Bot(token=my_token)
 
 def sending_on_schedule():     #bot에 메세지 보내는 함수
-    sending_text = crawling_ksp()
+    sending_text = crawling_orc()
     sending_text2 = "----------------------------------\n"
-    sending_text3, fluc = crawling_klay_shorts()
+    # sending_text3, fluc = crawling_klay_shorts()
+    sending_text3 = crawling_ksp_orc()
     text_sum = sending_text3 + sending_text2 + sending_text
     bot.sendMessage(chat_id=chat_id, text=text_sum)
-    return fluc
+    # return fluc
 
 gap = 0
 
@@ -245,9 +329,9 @@ def puppet_five_min():
             whole_schedule()
             break
 
-main_schedule()
+sending_on_schedule()
 scheduler1 = schedule.Scheduler()
-scheduler1.every(10).minutes.do(main_schedule)
+scheduler1.every(10).minutes.do(sending_on_schedule)
 
 while True:
     scheduler1.run_pending()
