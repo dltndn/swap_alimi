@@ -5,8 +5,8 @@ from bs4 import BeautifulSoup
 import schedule
 import time
 
-my_token = '1234'
-chat_id = 123
+my_token = '0'
+chat_id = 0
 
 
 def crawling_keth():
@@ -130,7 +130,7 @@ def crawling_orc():
     orc_price = float(orc_price)
     
     orc_value_rate = klay_price / orc_price #현재
-    orc_swap_rate = 0.915877 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
+    orc_swap_rate = 0.9555 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
 
     orc_fluc = orc_value_rate - orc_swap_rate
     orc_fluc = orc_fluc / orc_swap_rate
@@ -173,7 +173,7 @@ def crawling_ksp_orc():
     orc_price = float(orc_price)
     
     orc_value_rate = ksp_price / orc_price #현재
-    orc_swap_rate = 18.915877 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
+    orc_swap_rate = 17.8511 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
 
     orc_fluc = orc_value_rate - orc_swap_rate
     orc_fluc = orc_fluc / orc_swap_rate
@@ -236,15 +236,54 @@ def crawling_klay_shorts():
 
     return sending_text + sending_text2 , klay_dai_fluc
 
+def crawling_bnb_belt():
+    bnb_rateURL = 'https://www.coingecko.com/ko/%EC%BD%94%EC%9D%B8/belt'
+
+    bnb_rate_result = requests.get(bnb_rateURL)
+
+    bnb_rate_soup = BeautifulSoup(bnb_rate_result.text, "html.parser")
+    
+    temp_list = []
+    
+    belt_rate = bnb_rate_soup.find("div", {"class": 'text-muted'})
+    for rate in belt_rate.find_all('div') :
+        index = float(rate.text[:11])
+        temp_list.append(index)
+
+    bnb_belt_index = temp_list[1] # 현재 rate
+    bnb_belt_index_past = 0.245945 # 리밸런싱 시점-----------------------------------------------------------------------------------------------------------
+
+    bnb_belt_fluc = bnb_belt_index - bnb_belt_index_past
+    bnb_belt_fluc = bnb_belt_fluc / bnb_belt_index_past
+    bnb_belt_fluc = round(bnb_belt_fluc * 100, 2)
+
+    bnb_belt_index = round(bnb_belt_index, 4)
+    bnb_belt_index_past = round(bnb_belt_index_past, 4)
+
+    if bnb_belt_fluc < 0:
+        memo = "(belt 가치+ 개수-)"
+    elif bnb_belt_fluc == 0:
+        memo = "(변동 없음)"
+    else :
+        memo = "(belt 가치- 개수+)"
+
+    sending_text = "bnb-belt 스왑비(예치시점): " + str(bnb_belt_index_past) + "bnb\n"
+    sending_text2 = "bnb-belt 스왑비(현재): " + str(bnb_belt_index) + "bnb\n"
+    sending_text3 = "bnb-belt 스왑비 변동률: " + str(bnb_belt_fluc) + "%" + memo + "\n"
+
+    return sending_text + sending_text2 + sending_text3
+
 
 bot = telegram.Bot(token=my_token)
 
 def sending_on_schedule():     #bot에 메세지 보내는 함수
     sending_text = crawling_orc()
-    sending_text2 = "----------------------------------\n"
-    # sending_text3, fluc = crawling_klay_shorts()
+    dotted_line = "------------------------------\n"
+    sending_text3, fluc = crawling_klay_shorts()
     sending_text3 = crawling_ksp_orc()
-    text_sum = sending_text3 + sending_text2 + sending_text
+    sending_text4 = crawling_bnb_belt()
+    # sending_text5 = crawling_ksp()
+    text_sum = sending_text3 + dotted_line + sending_text + dotted_line + sending_text4 #+ dotted_line + sending_text5
     bot.sendMessage(chat_id=chat_id, text=text_sum)
     # return fluc
 
@@ -336,6 +375,8 @@ scheduler1.every(10).minutes.do(sending_on_schedule)
 while True:
     scheduler1.run_pending()
     time.sleep(1)
+
+
     
 # sending_on_schedule()
 # klay숏 하기 전 체크사항
