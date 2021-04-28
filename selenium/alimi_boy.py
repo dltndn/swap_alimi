@@ -1,5 +1,5 @@
 import telegram
-from telegram.ext import Updater, MessageHandler, Filters, CommandHandler  # import modules
+#from telegram.ext import Updater, MessageHandler, Filters, CommandHandler  # import modules
 import requests
 from bs4 import BeautifulSoup
 import schedule
