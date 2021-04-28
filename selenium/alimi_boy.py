@@ -5,8 +5,8 @@ from bs4 import BeautifulSoup
 import schedule
 import time
 
-my_token = '0'
-chat_id = 0
+my_token = '1794560565:AAE_g9OBBqU-QzCdisD2oJWkWw-vQ30_wR8'
+chat_id = 1343819766
 
 
 def crawling_keth():
@@ -68,25 +68,34 @@ def crawling_keth():
     
 def crawling_ksp():
     klayURL = 'https://coinmarketcap.com/ko/currencies/klaytn/'
-    kspURL = 'https://coinmarketcap.com/ko/currencies/klayswap-protocol/'
+    kspURL = 'https://www.coingecko.com/ko/%EC%BD%94%EC%9D%B8/klayswap-protocol'
+    dollar_rate_URL = 'https://search.naver.com/search.naver?sm=tab_hty.top&where=nexearch&query=%ED%99%98%EC%9C%A8' 
 
     klay_result = requests.get(klayURL)
     ksp_result = requests.get(kspURL)
+    dollar_result = requests.get(dollar_rate_URL)
 
     klay_soup = BeautifulSoup(klay_result.text, "html.parser")
     ksp_soup = BeautifulSoup(ksp_result.text, "html.parser")
+    dollar_soup = BeautifulSoup(dollar_result.text, "html.parser")
 
     klay_price = klay_soup.find("div", {"class": 'priceValue___11gHJ'}).text
     klay_price = klay_price[1:]
     klay_price = klay_price.replace(",", "")
     klay_price = float(klay_price)
     
-    ksp_price = ksp_soup.find("div", {"class": 'priceValue___11gHJ'}).text
+    ksp_price = ksp_soup.find("span", {"class": 'no-wrap'}).text
     ksp_price = ksp_price[1:]
-    ksp_price = ksp_price.replace(",", "")
     ksp_price = float(ksp_price)
+
+    dollar_rate = dollar_soup.find("span", {"class": "spt_con"}).find("strong").text
+    dollar_rate = dollar_rate[:5]
+    dollar_rate = dollar_rate.replace(",", "")
+    dollar_rate = float(dollar_rate)
     
-    ksp_value_rate = klay_price / ksp_price #현재
+    ksp_price_krw = ksp_price * dollar_rate
+    
+    ksp_value_rate = klay_price / ksp_price_krw #현재
     ksp_swap_rate = 0.0977 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
 
     ksp_fluc = ksp_value_rate - ksp_swap_rate
@@ -130,7 +139,7 @@ def crawling_orc():
     orc_price = float(orc_price)
     
     orc_value_rate = klay_price / orc_price #현재
-    orc_swap_rate = 0.9555 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
+    orc_swap_rate = 0.956 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
 
     orc_fluc = orc_value_rate - orc_swap_rate
     orc_fluc = orc_fluc / orc_swap_rate
@@ -153,27 +162,36 @@ def crawling_orc():
     return sending_text + sending_text2 + sending_text3
 
 def crawling_ksp_orc():
-    kspURL = 'https://coinmarketcap.com/ko/currencies/klayswap-protocol/'
+    kspURL = 'https://www.coingecko.com/ko/%EC%BD%94%EC%9D%B8/klayswap-protocol'
     orcURL = 'https://coinmarketcap.com/ko/currencies/orbit-chain/'
+    dollar_rate_URL = 'https://search.naver.com/search.naver?sm=tab_hty.top&where=nexearch&query=%ED%99%98%EC%9C%A8'
 
     ksp_result = requests.get(kspURL)
     orc_result = requests.get(orcURL)
+    dollar_result = requests.get(dollar_rate_URL)
 
     ksp_soup = BeautifulSoup(ksp_result.text, "html.parser")
     orc_soup = BeautifulSoup(orc_result.text, "html.parser")
-
-    ksp_price = ksp_soup.find("div", {"class": 'priceValue___11gHJ'}).text
-    ksp_price = ksp_price[1:]
-    ksp_price = ksp_price.replace(",", "")
-    ksp_price = float(ksp_price)
+    dollar_soup = BeautifulSoup(dollar_result.text, "html.parser")
     
     orc_price = orc_soup.find("div", {"class": 'priceValue___11gHJ'}).text
     orc_price = orc_price[1:]
     orc_price = orc_price.replace(",", "")
     orc_price = float(orc_price)
+
+    ksp_price = ksp_soup.find("span", {"class": 'no-wrap'}).text
+    ksp_price = ksp_price[1:]
+    ksp_price = float(ksp_price)
+
+    dollar_rate = dollar_soup.find("span", {"class": "spt_con"}).find("strong").text
+    dollar_rate = dollar_rate[:5]
+    dollar_rate = dollar_rate.replace(",", "")
+    dollar_rate = float(dollar_rate)
     
-    orc_value_rate = ksp_price / orc_price #현재
-    orc_swap_rate = 17.8511 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
+    ksp_price_krw = ksp_price * dollar_rate
+    
+    orc_value_rate = ksp_price_krw / orc_price #현재
+    orc_swap_rate = 18.1946 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
 
     orc_fluc = orc_value_rate - orc_swap_rate
     orc_fluc = orc_fluc / orc_swap_rate
@@ -261,11 +279,11 @@ def crawling_bnb_belt():
     bnb_belt_index_past = round(bnb_belt_index_past, 4)
 
     if bnb_belt_fluc < 0:
-        memo = "(belt 가치+ 개수-)"
+        memo = "(belt 가치- 개수+)"
     elif bnb_belt_fluc == 0:
         memo = "(변동 없음)"
     else :
-        memo = "(belt 가치- 개수+)"
+        memo = "(belt 가치+ 개수-)"
 
     sending_text = "bnb-belt 스왑비(예치시점): " + str(bnb_belt_index_past) + "bnb\n"
     sending_text2 = "bnb-belt 스왑비(현재): " + str(bnb_belt_index) + "bnb\n"
@@ -370,7 +388,7 @@ def puppet_five_min():
 
 sending_on_schedule()
 scheduler1 = schedule.Scheduler()
-scheduler1.every(10).minutes.do(sending_on_schedule)
+scheduler1.every(15).minutes.do(sending_on_schedule)
 
 while True:
     scheduler1.run_pending()
