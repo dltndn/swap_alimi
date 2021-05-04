@@ -1,5 +1,4 @@
 import telegram
-#from telegram.ext import Updater, MessageHandler, Filters, CommandHandler  # import modules
 import requests
 from bs4 import BeautifulSoup
 import schedule
@@ -324,151 +323,37 @@ def sending_on_schedule():     #bot에 메세지 보내는 함수
         slash = None
         day = None
 
-    with open('data_fluc.txt', 'rb') as f:
+    with open('/home/ubuntu/important_data/data_fluc.txt', 'rb') as f:
         data = pickle.load(f)
         del data["ksp_orc"][0]
         del data["klay_orc"][0]
         del data["bnb_belt"][0]
         del data["month"][0]
-        del data["slash"][0]
         del data["day"][0]
 
-    with open('data_fluc.txt', 'wb') as f:
+    with open('/home/ubuntu/important_data/data_fluc.txt', 'wb') as f:
         # 최근 데이터
         data["ksp_orc"].append(ksp_orc)
         data["klay_orc"].append(klay_orc)
         data["bnb_belt"].append(bnb_belt)
         data["month"].append(month)
-        data["slash"].append(slash)
         data["day"].append(day)
         pickle.dump(data, f)
 
-gap = 0
-
-def fluc_frequency():    #변동률 파일에 읽고쓰기 
-    fluc = sending_on_schedule()
-    def add():
-        f = open("fluc.txt", 'a')
-        data = str(fluc) 
-        f.write(data)
-        f.close()
-    
-    def read():
-        f = open("fluc.txt", 'r')
-        lines = f.readlines()
-        index = []
-        for line in lines:
-            index.append(line)
-        f.close()
-        front = float(index[0])
-        current = float(index[1])
-        gap = current - front
-        gap = abs(round(gap, 2))
-        return gap
-        
-    def write():
-        f = open("fluc.txt", 'w')
-        data = str(fluc) + "\n"
-        f.write(data)
-        f.close()
-
-    global gap
-    add()
-    gap = read()
-    write()    
-
-def whole_schedule():
-    if gap > 2:
-        puppet_ten_sec()
-    elif gap > 1:
-        puppet_one_min()
-    elif gap > 0.5:
-        puppet_five_min()
-    else:
-        pass
-
-def main_schedule():    
-    fluc_frequency()
-    whole_schedule()
-
-def ass_schedule():
-    fluc_frequency()
-
-def puppet_ten_sec():
-    scheduler2 = schedule.Scheduler()
-    scheduler2.every(10).seconds.do(ass_schedule)
-    while True:
-        scheduler2.run_pending()
-        time.sleep(1)
-        if gap <= 2:
-            whole_schedule()
-            break
-
-def puppet_one_min():
-    scheduler2 = schedule.Scheduler()
-    scheduler2.every(1).minutes.do(ass_schedule)
-    while True:
-        scheduler2.run_pending()
-        time.sleep(1)
-        if gap <= 1:
-            whole_schedule()
-            break
-
-def puppet_five_min():
-    scheduler2 = schedule.Scheduler()
-    scheduler2.every(5).minutes.do(ass_schedule)
-    while True:
-        scheduler2.run_pending()
-        time.sleep(1)
-        if gap <= 0.5:
-            whole_schedule()
-            break
 
 sending_on_schedule()
-# scheduler1 = schedule.Scheduler()
-# scheduler1.every(15).minutes.do(sending_on_schedule)
+scheduler1 = schedule.Scheduler()
+scheduler1.every(15).minutes.do(sending_on_schedule)
 
-# while True:
-#     scheduler1.run_pending()
-#     time.sleep(1)
-
-
-    
-# sending_on_schedule()
-# klay숏 하기 전 체크사항
-# 스왑과 동시에 sending_on_schedule()실행 후 리밸런싱 시점 입력
-# fluc.txt에 0입력
+while True:
+    scheduler1.run_pending()
+    time.sleep(1)
 
 
 
-# print('start telegram chat bot')
-
-# # message reply function
-# def get_message(update, context) :
-#     update.message.reply_text("got text")
-#     update.message.reply_text(update.message.text)
 
 
-# # rate reply function
-# def keth_rate_command(update, context) :
-#     keth = crawling_keth()
-#     update.message.reply_text(keth)
-
-# def ksp_rate_command(update, context) : 
-#     ksp = crawling_ksp()
-#     update.message.reply_text(ksp)
 
 
-# updater = Updater(my_token, use_context=True)
 
-# message_handler = MessageHandler(Filters.text & (~Filters.command), get_message) # 메세지중에서 command 제외
-# updater.dispatcher.add_handler(message_handler)
 
-# keth_rate_handler = CommandHandler('keth', keth_rate_command)
-# updater.dispatcher.add_handler(keth_rate_handler)
-
-# ksp_rate_handler = CommandHandler('ksp', ksp_rate_command)
-# updater.dispatcher.add_handler(ksp_rate_handler)
-
-# updater.start_polling(timeout=3, clean=True)
-# updater.idle()

@@ -1,21 +1,26 @@
-import telegram
 import pickle
 
-my_token = '1234'
-chat_id = 1234
+def write_data() :
+    # 형식 : 페어, 월(자정기준), slash, 일(자정기준) 
+    data_list = {"ksp_orc" : [],
+                 "klay_orc" : [],
+                 "bnb_belt" : [],
+                 "month" : [],
+                 "day" : [],
+                 }
 
-data = "hello world"
-        
 
-with open('/home/ubuntu/important_data/data_test.txt', 'wb') as f:
-    pickle.dump(data, f)
+    for pair in range(672) :
+        data_list["ksp_orc"].append(0)
+        data_list["klay_orc"].append(0)
+        data_list["bnb_belt"].append(0)
+        data_list["month"].append(None)
+        data_list["day"].append(None)
 
-with open('/home/ubuntu/important_data/data_test.txt', 'rb') as f:
-    data = pickle.load(f)
-    text_sum = data
 
-bot = telegram.Bot(token=my_token)
-bot.sendMessage(chat_id=chat_id, text=text_sum)
+    with open('/home/ubuntu/important_data/data_fluc.txt', 'wb') as f:
+        pickle.dump(data_list, f)
     
 
+write_data()
 
