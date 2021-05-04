@@ -71,7 +71,7 @@ def draw_graph() :
 
     plt.tick_params(axis='x', direction='in', length=3, pad=6, top=True)
 
-    plt.savefig('save_graph.png', facecolor='#eeeeee', dpi = 200)
+    plt.savefig('/home/ubuntu/important_data/save_graph.png', facecolor='#eeeeee', dpi = 200)
 
 # print('start telegram chat bot')
 
@@ -84,7 +84,7 @@ def get_message(update, context) :
 
 # rate reply function
 def get_graph_image(update, context) :
-    bot.sendPhoto(chat_id=chat_id, photo=open('C:/Users/james/Desktop/test_file/save_graph.png', 'rb'))
+    bot.sendPhoto(chat_id=chat_id, photo=open('/home/ubuntu/important_data/save_graph.png', 'rb'))
 
 updater = Updater(my_token, use_context=True)
 
