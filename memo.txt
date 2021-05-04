@@ -1,0 +1,10 @@
+kill -9 <프로세스 아이디>
+aws 백그라운드에서 실행 중인 코드 중지
+
+코드 수정 후
+:wq!
+
+nohup python3 amimi_boy.py > output.log &
+
+ps ax | grep .py
+aws 백그라운드에서 코드 실행 확인

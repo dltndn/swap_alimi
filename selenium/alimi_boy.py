@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import schedule
 import time
+import pickle
 
 my_token = '1234'
 chat_id = 1234
@@ -159,7 +160,9 @@ def crawling_orc():
     sending_text2 = "klay-orc 스왑비(현재): " + str(orc_value_rate) + "orc\n"
     sending_text3 = "klay-orc 스왑비 변동률: " + str(orc_fluc) + "%" + memo + "\n"
 
-    return sending_text + sending_text2 + sending_text3
+    orc_fluc = float(orc_fluc)
+
+    return sending_text + sending_text2 + sending_text3, orc_fluc
 
 def crawling_ksp_orc():
     kspURL = 'https://www.coingecko.com/ko/%EC%BD%94%EC%9D%B8/klayswap-protocol'
@@ -191,7 +194,7 @@ def crawling_ksp_orc():
     ksp_price_krw = ksp_price * dollar_rate
     
     orc_value_rate = ksp_price_krw / orc_price #현재
-    orc_swap_rate = 18.1946 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
+    orc_swap_rate = 18.909 #리밸런싱 시점-----------------------------------------------------------------------------------------------------------
 
     orc_fluc = orc_value_rate - orc_swap_rate
     orc_fluc = orc_fluc / orc_swap_rate
@@ -211,7 +214,9 @@ def crawling_ksp_orc():
     sending_text2 = "ksp-orc 스왑비(현재): " + str(orc_value_rate) + "orc\n"
     sending_text3 = "ksp-orc 스왑비 변동률: " + str(orc_fluc) + "%" + memo + "\n"
 
-    return sending_text + sending_text2 + sending_text3
+    orc_fluc = float(orc_fluc)
+
+    return sending_text + sending_text2 + sending_text3, orc_fluc
 
 def crawling_klay_shorts():
     klayURL = 'https://coinmarketcap.com/ko/currencies/klaytn/'
@@ -269,7 +274,7 @@ def crawling_bnb_belt():
         temp_list.append(index)
 
     bnb_belt_index = temp_list[1] # 현재 rate
-    bnb_belt_index_past = 0.245945 # 리밸런싱 시점-----------------------------------------------------------------------------------------------------------
+    bnb_belt_index_past = 0.1413 # 리밸런싱 시점-----------------------------------------------------------------------------------------------------------
 
     bnb_belt_fluc = bnb_belt_index - bnb_belt_index_past
     bnb_belt_fluc = bnb_belt_fluc / bnb_belt_index_past
@@ -289,21 +294,54 @@ def crawling_bnb_belt():
     sending_text2 = "bnb-belt 스왑비(현재): " + str(bnb_belt_index) + "bnb\n"
     sending_text3 = "bnb-belt 스왑비 변동률: " + str(bnb_belt_fluc) + "%" + memo + "\n"
 
-    return sending_text + sending_text2 + sending_text3
+    bnb_belt_fluc = float(bnb_belt_fluc)
 
+    return sending_text + sending_text2 + sending_text3, bnb_belt_fluc
 
 bot = telegram.Bot(token=my_token)
 
 def sending_on_schedule():     #bot에 메세지 보내는 함수
-    sending_text = crawling_orc()
     dotted_line = "------------------------------\n"
-    sending_text3, fluc = crawling_klay_shorts()
-    sending_text3 = crawling_ksp_orc()
-    sending_text4 = crawling_bnb_belt()
+    sending_text3, ksp_orc = crawling_ksp_orc()
+    sending_text, klay_orc = crawling_orc()
+    sending_text4, bnb_belt = crawling_bnb_belt()
     # sending_text5 = crawling_ksp()
     text_sum = sending_text3 + dotted_line + sending_text + dotted_line + sending_text4 #+ dotted_line + sending_text5
     bot.sendMessage(chat_id=chat_id, text=text_sum)
     # return fluc
+
+    month = int(time.strftime('%m'))  # month
+    day = int(time.strftime('%d'))  # day
+    hour = int(time.strftime('%H'))
+    minute = int(time.strftime('%M'))
+
+    if hour == 0 and minute < 15 :
+        month = str(month)
+        slash = '/'
+        day = str(day)
+    else :
+        month = None
+        slash = None
+        day = None
+
+    with open('data_fluc.txt', 'rb') as f:
+        data = pickle.load(f)
+        del data["ksp_orc"][0]
+        del data["klay_orc"][0]
+        del data["bnb_belt"][0]
+        del data["month"][0]
+        del data["slash"][0]
+        del data["day"][0]
+
+    with open('data_fluc.txt', 'wb') as f:
+        # 최근 데이터
+        data["ksp_orc"].append(ksp_orc)
+        data["klay_orc"].append(klay_orc)
+        data["bnb_belt"].append(bnb_belt)
+        data["month"].append(month)
+        data["slash"].append(slash)
+        data["day"].append(day)
+        pickle.dump(data, f)
 
 gap = 0
 
@@ -387,12 +425,12 @@ def puppet_five_min():
             break
 
 sending_on_schedule()
-scheduler1 = schedule.Scheduler()
-scheduler1.every(15).minutes.do(sending_on_schedule)
+# scheduler1 = schedule.Scheduler()
+# scheduler1.every(15).minutes.do(sending_on_schedule)
 
-while True:
-    scheduler1.run_pending()
-    time.sleep(1)
+# while True:
+#     scheduler1.run_pending()
+#     time.sleep(1)
 
 
     
