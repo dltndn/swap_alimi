@@ -73,29 +73,27 @@ def draw_graph() :
 
     plt.savefig('save_graph.png', facecolor='#eeeeee', dpi = 200)
 
-print('start telegram chat bot')
+# print('start telegram chat bot')
 
+bot = telegram.Bot(token=my_token)
 # message reply function
 def get_message(update, context) :
     update.message.reply_text("got text")
     update.message.reply_text(update.message.text)
-    print("whoa")
 
 
-# help reply function
-def help_command(update, context) :
-    update.message.reply_text("무엇을 도와드릴까요?")
-    print("whoa")
-
+# rate reply function
+def get_graph_image(update, context) :
+    bot.sendPhoto(chat_id=chat_id, photo=open('C:/Users/james/Desktop/test_file/save_graph.png', 'rb'))
 
 updater = Updater(my_token, use_context=True)
 
 message_handler = MessageHandler(Filters.text & (~Filters.command), get_message) # 메세지중에서 command 제외
 updater.dispatcher.add_handler(message_handler)
 
-help_handler = CommandHandler('help', help_command)
-updater.dispatcher.add_handler(help_handler)
+keth_rate_handler = CommandHandler('graph', get_graph_image)
+updater.dispatcher.add_handler(keth_rate_handler)
 
-updater.idle()
 updater.start_polling(timeout=3, clean=True)
+updater.idle()
 

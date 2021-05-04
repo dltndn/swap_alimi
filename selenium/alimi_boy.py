@@ -1,4 +1,5 @@
 import telegram
+#from telegram.ext import Updater, MessageHandler, Filters, CommandHandler  # import modules
 import requests
 from bs4 import BeautifulSoup
 import schedule
@@ -340,6 +341,86 @@ def sending_on_schedule():     #bot에 메세지 보내는 함수
         data["day"].append(day)
         pickle.dump(data, f)
 
+gap = 0
+
+def fluc_frequency():    #변동률 파일에 읽고쓰기 
+    fluc = sending_on_schedule()
+    def add():
+        f = open("fluc.txt", 'a')
+        data = str(fluc) 
+        f.write(data)
+        f.close()
+    
+    def read():
+        f = open("fluc.txt", 'r')
+        lines = f.readlines()
+        index = []
+        for line in lines:
+            index.append(line)
+        f.close()
+        front = float(index[0])
+        current = float(index[1])
+        gap = current - front
+        gap = abs(round(gap, 2))
+        return gap
+        
+    def write():
+        f = open("fluc.txt", 'w')
+        data = str(fluc) + "\n"
+        f.write(data)
+        f.close()
+
+    global gap
+    add()
+    gap = read()
+    write()    
+
+def whole_schedule():
+    if gap > 2:
+        puppet_ten_sec()
+    elif gap > 1:
+        puppet_one_min()
+    elif gap > 0.5:
+        puppet_five_min()
+    else:
+        pass
+
+def main_schedule():    
+    fluc_frequency()
+    whole_schedule()
+
+def ass_schedule():
+    fluc_frequency()
+
+def puppet_ten_sec():
+    scheduler2 = schedule.Scheduler()
+    scheduler2.every(10).seconds.do(ass_schedule)
+    while True:
+        scheduler2.run_pending()
+        time.sleep(1)
+        if gap <= 2:
+            whole_schedule()
+            break
+
+def puppet_one_min():
+    scheduler2 = schedule.Scheduler()
+    scheduler2.every(1).minutes.do(ass_schedule)
+    while True:
+        scheduler2.run_pending()
+        time.sleep(1)
+        if gap <= 1:
+            whole_schedule()
+            break
+
+def puppet_five_min():
+    scheduler2 = schedule.Scheduler()
+    scheduler2.every(5).minutes.do(ass_schedule)
+    while True:
+        scheduler2.run_pending()
+        time.sleep(1)
+        if gap <= 0.5:
+            whole_schedule()
+            break
 
 sending_on_schedule()
 scheduler1 = schedule.Scheduler()
@@ -348,12 +429,6 @@ scheduler1.every(15).minutes.do(sending_on_schedule)
 while True:
     scheduler1.run_pending()
     time.sleep(1)
-
-
-
-
-
-
 
 
 
