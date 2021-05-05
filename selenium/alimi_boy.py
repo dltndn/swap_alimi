@@ -8,8 +8,8 @@ import pickle
 import json
 import urllib.request
 
-my_token = '1794560565:AAE_g9OBBqU-QzCdisD2oJWkWw-vQ30_wR8'
-chat_id = 1343819766
+my_token = '1234'
+chat_id = 1134
 
 
 def crawling_klay_price():
