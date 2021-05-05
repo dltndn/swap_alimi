@@ -8,8 +8,8 @@ import pickle
 import json
 import urllib.request
 
-my_token = '1234'
-chat_id = 1234
+my_token = '1794560565:AAE_g9OBBqU-QzCdisD2oJWkWw-vQ30_wR8'
+chat_id = 1343819766
 
 
 def crawling_klay_price():
@@ -40,7 +40,7 @@ def crawling_ksp_price():
     return ksp
 
     
-def klay_ksp():
+def crawling_klay_ksp():
     klay_price = crawling_klay_price()
     ksp_price = crawling_ksp_price()
     
@@ -67,7 +67,7 @@ def klay_ksp():
 
     return sending_text + sending_text2 + sending_text3
 
-def klay_orc():
+def crawling_klay_orc():
     klay_price = crawling_klay_price()
     orc_price = crawling_orc_price()
     
@@ -96,7 +96,7 @@ def klay_orc():
 
     return sending_text + sending_text2 + sending_text3, orc_fluc
 
-def ksp_orc():
+def crawling_ksp_orc():
     ksp_price = crawling_ksp_price()
     orc_price = crawling_orc_price()
     
@@ -168,43 +168,43 @@ bot = telegram.Bot(token=my_token)
 
 def sending_on_schedule():     #bot에 메세지 보내는 함수
     dotted_line = "------------------------------\n"
-    sending_text3, ksp_orc = ksp_orc()
-    sending_text, klay_orc = klay_orc()
+    sending_text3, ksp_orc = crawling_ksp_orc()
+    sending_text, klay_orc = crawling_klay_orc()
     sending_text4, bnb_belt = crawling_bnb_belt()
-    # sending_text5 = klay_ksp()
+    # sending_text5 = crawling_klay_ksp()
     text_sum = sending_text3 + dotted_line + sending_text + dotted_line + sending_text4 #+ dotted_line + sending_text5
     bot.sendMessage(chat_id=chat_id, text=text_sum)
 
-    month = int(time.strftime('%m'))  # month
-    day = int(time.strftime('%d'))  # day
-    hour = int(time.strftime('%H'))
-    minute = int(time.strftime('%M'))
+    # month = int(time.strftime('%m'))  # month
+    # day = int(time.strftime('%d'))  # day
+    # hour = int(time.strftime('%H'))
+    # minute = int(time.strftime('%M'))
 
-    if hour == 0 and minute < 15 :
-        month = str(month)
-        slash = '/'
-        day = str(day)
-    else :
-        month = None
-        slash = None
-        day = None
+    # if hour == 0 and minute < 15 :
+    #     month = str(month)
+    #     slash = '/'
+    #     day = str(day)
+    # else :
+    #     month = None
+    #     slash = None
+    #     day = None
 
-    with open('/home/ubuntu/important_data/data_fluc.txt', 'rb') as f:
-        data = pickle.load(f)
-        del data["ksp_orc"][0]
-        del data["klay_orc"][0]
-        del data["bnb_belt"][0]
-        del data["month"][0]
-        del data["day"][0]
+    # with open('/home/ubuntu/important_data/data_fluc.txt', 'rb') as f:
+    #     data = pickle.load(f)
+    #     del data["ksp_orc"][0]
+    #     del data["klay_orc"][0]
+    #     del data["bnb_belt"][0]
+    #     del data["month"][0]
+    #     del data["day"][0]
 
-    with open('/home/ubuntu/important_data/data_fluc.txt', 'wb') as f:
-        # 최근 데이터
-        data["ksp_orc"].append(ksp_orc)
-        data["klay_orc"].append(klay_orc)
-        data["bnb_belt"].append(bnb_belt)
-        data["month"].append(month)
-        data["day"].append(day)
-        pickle.dump(data, f)
+    # with open('/home/ubuntu/important_data/data_fluc.txt', 'wb') as f:
+    #     # 최근 데이터
+    #     data["ksp_orc"].append(ksp_orc)
+    #     data["klay_orc"].append(klay_orc)
+    #     data["bnb_belt"].append(bnb_belt)
+    #     data["month"].append(month)
+    #     data["day"].append(day)
+    #     pickle.dump(data, f)
 
 
 sending_on_schedule()
