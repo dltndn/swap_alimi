@@ -8,29 +8,6 @@ import pickle
 my_token = '1234'
 chat_id = 1234
 
-def write_data() :
-    # 형식 : 페어, 월(자정기준), 일(자정기준), 12(정오) 
-    data_list = {"ksp_orc" : [],
-                 "klay_orc" : [],
-                 "bnb_belt" : [],
-                 "month" : [],
-                 "slash" : [],
-                 "day" : [],
-                 }
-
-    for pair in range(672) :
-        data_list["ksp_orc"].append(0)
-        data_list["klay_orc"].append(0)
-        data_list["bnb_belt"].append(0)
-        data_list["month"].append(None)
-        data_list["slash"].append(None)
-        data_list["day"].append(None)
-
-    with open('/home/ubuntu/important_data/data_fluc.txt', 'wb') as f:
-        pickle.dump(data_list, f)
-
-    
-
 def draw_graph() :
     with open('/home/ubuntu/important_data/data_fluc.txt', 'rb') as f:
         data = pickle.load(f)
@@ -61,13 +38,13 @@ def draw_graph() :
     plt.plot(plot_x, klay_orc_fluc, color='#6f6558', label='klay_orc') # klay_orc
     plt.plot(plot_x, bnb_belt_fluc, color='#fdd493', label='bnb_belt') # bnb_belt
 
-    plt.xlabel('date', fontsize=17)
-    plt.ylabel('fluc', fontsize=17)
+    plt.xlabel('date', fontsize=12)
+    plt.ylabel('fluc', fontsize=12)
 
-    plt.xticks(plot_x, label_list, fontsize=15)
-    plt.yticks(np.arange(-100, 110, 10), ytick_list, fontsize=15)
+    plt.xticks(plot_x, label_list, fontsize=12)
+    plt.yticks(np.arange(-100, 110, 10), ytick_list, fontsize=12)
 
-    plt.legend(loc='best', fontsize=15)
+    plt.legend(loc='best', fontsize=9)
 
     plt.tick_params(axis='x', direction='in', length=3, pad=6, top=True)
 
@@ -84,6 +61,8 @@ def get_message(update, context) :
 
 # rate reply function
 def get_graph_image(update, context) :
+    update.message.reply_text("잠시만 기다려 주세요!")
+    draw_graph()
     bot.sendPhoto(chat_id=chat_id, photo=open('/home/ubuntu/important_data/save_graph.png', 'rb'))
 
 updater = Updater(my_token, use_context=True)
