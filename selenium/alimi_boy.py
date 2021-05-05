@@ -175,36 +175,36 @@ def sending_on_schedule():     #bot에 메세지 보내는 함수
     text_sum = sending_text3 + dotted_line + sending_text + dotted_line + sending_text4 #+ dotted_line + sending_text5
     bot.sendMessage(chat_id=chat_id, text=text_sum)
 
-    # month = int(time.strftime('%m'))  # month
-    # day = int(time.strftime('%d'))  # day
-    # hour = int(time.strftime('%H'))
-    # minute = int(time.strftime('%M'))
+    month = int(time.strftime('%m'))  # month
+    day = int(time.strftime('%d'))  # day
+    hour = int(time.strftime('%H'))
+    minute = int(time.strftime('%M'))
 
-    # if hour == 0 and minute < 15 :
-    #     month = str(month)
-    #     slash = '/'
-    #     day = str(day)
-    # else :
-    #     month = None
-    #     slash = None
-    #     day = None
+    if hour == 0 and minute < 15 :
+        month = str(month)
+        slash = '/'
+        day = str(day)
+    else :
+        month = None
+        slash = None
+        day = None
 
-    # with open('/home/ubuntu/important_data/data_fluc.txt', 'rb') as f:
-    #     data = pickle.load(f)
-    #     del data["ksp_orc"][0]
-    #     del data["klay_orc"][0]
-    #     del data["bnb_belt"][0]
-    #     del data["month"][0]
-    #     del data["day"][0]
+    with open('/home/ubuntu/important_data/data_fluc.txt', 'rb') as f:
+        data = pickle.load(f)
+        del data["ksp_orc"][0]
+        del data["klay_orc"][0]
+        del data["bnb_belt"][0]
+        del data["month"][0]
+        del data["day"][0]
 
-    # with open('/home/ubuntu/important_data/data_fluc.txt', 'wb') as f:
-    #     # 최근 데이터
-    #     data["ksp_orc"].append(ksp_orc)
-    #     data["klay_orc"].append(klay_orc)
-    #     data["bnb_belt"].append(bnb_belt)
-    #     data["month"].append(month)
-    #     data["day"].append(day)
-    #     pickle.dump(data, f)
+    with open('/home/ubuntu/important_data/data_fluc.txt', 'wb') as f:
+        # 최근 데이터
+        data["ksp_orc"].append(ksp_orc)
+        data["klay_orc"].append(klay_orc)
+        data["bnb_belt"].append(bnb_belt)
+        data["month"].append(month)
+        data["day"].append(day)
+        pickle.dump(data, f)
 
 
 sending_on_schedule()

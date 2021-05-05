@@ -45,8 +45,10 @@ def write_data() :
         data_list["day"].append(None)
 
 
-    with open('/home/ubuntu/important_data/data_fluc.txt', 'wb') as f:
+    with open('C:/Users/james/Desktop/test_file', 'wb') as f:
         pickle.dump(data_list, f)
+
+write_data()
 
 def crawling_test() :
 
