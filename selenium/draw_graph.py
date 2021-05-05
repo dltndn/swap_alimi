@@ -4,6 +4,7 @@ import schedule
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
+import os
 
 my_token = '1234'
 chat_id = 1234
@@ -50,6 +51,12 @@ def draw_graph() :
 
     plt.savefig('/home/ubuntu/important_data/save_graph.png', facecolor='#eeeeee', dpi = 200)
 
+def remove_png_file() :
+    file = '/home/ubuntu/important_data/save_graph.png'
+
+    if os.path.isfile(file):
+        os.remove(file)
+
 # print('start telegram chat bot')
 
 bot = telegram.Bot(token=my_token)
@@ -64,6 +71,7 @@ def get_graph_image(update, context) :
     update.message.reply_text("잠시만 기다려 주세요!")
     draw_graph()
     bot.sendPhoto(chat_id=chat_id, photo=open('/home/ubuntu/important_data/save_graph.png', 'rb'))
+    remove_png_file()
 
 updater = Updater(my_token, use_context=True)
 

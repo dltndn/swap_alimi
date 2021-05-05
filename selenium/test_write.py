@@ -10,6 +10,7 @@ from selenium import webdriver
 import json
 import urllib.request
 # from urllib.request import Request, urlopen
+import os
 
 def crawling_coinone() :
     urlTicker = urllib.request.urlopen('https://api.coinone.co.kr/ticker/?currency=all')
@@ -115,8 +116,8 @@ def crawling_ksp_price():
 
     return ksp
 
-print(crawling_klay_price())
-print(crawling_orc_price())
-print(crawling_ksp_price())
+
+
+
 
 
