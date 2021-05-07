@@ -1,10 +1,10 @@
 import telegram
-from telegram.ext import Updater, MessageHandler, Filters, CommandHandler 
-import schedule
+# from telegram.ext import Updater, MessageHandler, Filters, CommandHandler 
+# import schedule
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
-import os
+# import os
 
 my_token = '1234'
 chat_id = 1234
@@ -51,36 +51,33 @@ def draw_graph() :
 
     plt.savefig('/home/ubuntu/important_data/save_graph.png', facecolor='#eeeeee', dpi = 200)
 
-def remove_png_file() :
-    file = '/home/ubuntu/important_data/save_graph.png'
-
-    if os.path.isfile(file):
-        os.remove(file)
 
 # print('start telegram chat bot')
 
+draw_graph()
 bot = telegram.Bot(token=my_token)
-# message reply function
-def get_message(update, context) :
-    update.message.reply_text("got text")
-    update.message.reply_text(update.message.text)
+bot.sendPhoto(chat_id=chat_id, photo=open('/home/ubuntu/important_data/save_graph.png', 'rb'))
+# # message reply function
+# def get_message(update, context) :
+#     update.message.reply_text("got text")
+#     update.message.reply_text(update.message.text)
 
 
-# rate reply function
-def get_graph_image(update, context) :
-    update.message.reply_text("잠시만 기다려 주세요!")
-    draw_graph()
-    bot.sendPhoto(chat_id=chat_id, photo=open('/home/ubuntu/important_data/save_graph.png', 'rb'))
-    remove_png_file()
+# # rate reply function
+# def get_graph_image(update, context) :
+#     update.message.reply_text("잠시만 기다려 주세요!")
+#     draw_graph()
+#     bot.sendPhoto(chat_id=chat_id, photo=open('/home/ubuntu/important_data/save_graph.png', 'rb'))
+#     remove_png_file()
 
-updater = Updater(my_token, use_context=True)
+# updater = Updater(my_token, use_context=True)
 
-message_handler = MessageHandler(Filters.text & (~Filters.command), get_message) # 메세지중에서 command 제외
-updater.dispatcher.add_handler(message_handler)
+# message_handler = MessageHandler(Filters.text & (~Filters.command), get_message) # 메세지중에서 command 제외
+# updater.dispatcher.add_handler(message_handler)
 
-keth_rate_handler = CommandHandler('graph', get_graph_image)
-updater.dispatcher.add_handler(keth_rate_handler)
+# keth_rate_handler = CommandHandler('graph', get_graph_image)
+# updater.dispatcher.add_handler(keth_rate_handler)
 
-updater.start_polling(timeout=3, clean=True)
-updater.idle()
+# updater.start_polling(timeout=3, clean=True)
+# updater.idle()
 
