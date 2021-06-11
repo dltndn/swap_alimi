@@ -21,6 +21,7 @@ from telegram.ext import Updater, MessageHandler, Filters, CommandHandler
 my_token = '1234'
 chat_id = 1234
 
+
 def crawling_coinone() :
     urlTicker = urllib.request.urlopen('https://api.coinone.co.kr/ticker/?currency=all')
     readTicker = urlTicker.read()
@@ -144,6 +145,47 @@ def remove_png_file() :
 def draw_graph_func() :
     draw_graph()
 
+def crawling_bnb_belt():
+    bnb_rateURL = 'https://www.coingecko.com/ko/%EC%BD%94%EC%9D%B8/belt'
+
+    bnb_rate_result = requests.get(bnb_rateURL)
+
+    bnb_rate_soup = BeautifulSoup(bnb_rate_result.text, "html.parser")
+    
+    temp_list = []
+    
+    belt_rate = bnb_rate_soup.find("div", {"class": 'text-muted'})
+    for rate in belt_rate.find_all('div') :
+        index = float(rate.text[:11])
+        temp_list.append(index)
+
+    bnb_belt_index = temp_list[1] # 현재 rate
+    bnb_belt_index_past = 0.1339 # 리밸런싱 시점-----------------------------------------------------------------------------------------------------------
+
+    bnb_belt_fluc = bnb_belt_index - bnb_belt_index_past
+    bnb_belt_fluc = bnb_belt_fluc / bnb_belt_index_past
+    bnb_belt_fluc = round(bnb_belt_fluc * 100, 2)
+
+    bnb_belt_index = round(bnb_belt_index, 4)
+    bnb_belt_index_past = round(bnb_belt_index_past, 4)
+
+    if bnb_belt_fluc < 0:
+        memo = "(belt 가치- 개수+)"
+    elif bnb_belt_fluc == 0:
+        memo = "(변동 없음)"
+    else :
+        memo = "(belt 가치+ 개수-)"
+
+    sending_text = "bnb-belt 스왑비(예치시점): " + str(bnb_belt_index_past) + "bnb\n"
+    sending_text2 = "bnb-belt 스왑비(현재): " + str(bnb_belt_index) + "bnb\n"
+    sending_text3 = "bnb-belt 스왑비 변동률: " + str(bnb_belt_fluc) + "%" + memo + "\n"
+
+    bnb_belt_fluc = float(bnb_belt_fluc)
+
+    return sending_text + sending_text2 + sending_text3, bnb_belt_fluc
+
+text = crawling_bnb_belt()
+print(text)
 
 # write_file()
 
@@ -152,12 +194,12 @@ def draw_graph_func() :
 # remove_png_file()
 
 
-scheduler1 = schedule.Scheduler()
-scheduler1.every(10).seconds.do(draw_graph_func)
+# scheduler1 = schedule.Scheduler()
+# scheduler1.every(10).seconds.do(draw_graph_func)
 
-while True:
-    scheduler1.run_pending()
-    time.sleep(1)
+# while True:
+#     scheduler1.run_pending()
+#     time.sleep(1)
 
 # bot = telegram.Bot(token=my_token)
 # # message reply function
