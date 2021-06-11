@@ -14,7 +14,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
 my_token = '1234'
-chat_id = 1134
+chat_id = 1234
 
 # 리밸런싱 시점
 orc_swap_rate = 19.0564 #ksp-orc
@@ -22,7 +22,7 @@ klay_orc_swap_rate = 0.978 #klay-orc
 bnb_belt_index_past = 0.1339 #bnb-belt
 
 options = Options()
-options.add_argument('--headless')
+# options.add_argument('--headless')
 options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
 
@@ -33,11 +33,11 @@ def il_calculator(fluc) : # input type : str, return type : str
     driver.get(URL)
     driver.implicitly_wait(time_to_wait=3)
     driver.find_element_by_xpath('//*[@id="__next"]/div/div[1]/div[2]/div/div/div[3]/div[3]/span/div/button').click()
-    input_fluc = driver.find_element_by_xpath('//*[@id="tippy-8"]/div/div[1]/div/div/div/div[1]/div[1]/div/div[1]/input')
+    input_fluc = driver.find_element_by_class_name('cxm5lu-0')
     time.sleep(1)
     input_fluc.send_keys(fluc)
     time.sleep(1)
-    il = driver.find_element_by_xpath('//*[@id="tippy-8"]/div/div[1]/div/div/div/div[2]/p[2]').text
+    il = driver.find_element_by_class_name('imLApL').text
 
     driver.close()
     return il
